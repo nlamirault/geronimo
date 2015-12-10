@@ -1,0 +1,71 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/BurntSushi/toml",
+			"repository": "https://github.com/BurntSushi/toml",
+			"revision": "056c9bc7be7190eaa7715723883caffa5f8fa3e4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/google/go-github/github",
+			"repository": "https://github.com/google/go-github",
+			"revision": "44b1ede22d71e26fa5d7af7a50204f7e6daadfc8",
+			"branch": "master",
+			"path": "/github"
+		},
+		{
+			"importpath": "github.com/google/go-querystring/query",
+			"repository": "https://github.com/google/go-querystring",
+			"revision": "2a60fc2ba6c19de80291203597d752e9ba58e4c0",
+			"branch": "master",
+			"path": "/query"
+		},
+		{
+			"importpath": "github.com/hashicorp/logutils",
+			"repository": "https://github.com/hashicorp/logutils",
+			"revision": "0dc08b1671f34c4250ce212759ebd880f743d883",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/olivere/elastic/uritemplates",
+			"repository": "https://github.com/olivere/elastic",
+			"revision": "a8215e0b307af4727033f0cbc52e42600c5baebc",
+			"branch": "master",
+			"path": "/uritemplates"
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "1796f9b8b7178e3c7587dff118d3bb9d37f9b0b3",
+			"branch": "master",
+			"path": "/context"
+		},
+		{
+			"importpath": "golang.org/x/oauth2",
+			"repository": "https://go.googlesource.com/oauth2",
+			"revision": "2baa8a1b9338cf13d9eeb27696d761155fa480be",
+			"branch": "master"
+		},
+		{
+			"importpath": "google.golang.org/cloud/compute/metadata",
+			"repository": "https://code.googlesource.com/gocloud",
+			"revision": "ec5efcc6a7862ae410e34d8de21fdec12e367732",
+			"branch": "master",
+			"path": "/compute/metadata"
+		},
+		{
+			"importpath": "google.golang.org/cloud/internal",
+			"repository": "https://code.googlesource.com/gocloud",
+			"revision": "ec5efcc6a7862ae410e34d8de21fdec12e367732",
+			"branch": "master",
+			"path": "/internal"
+		},
+		{
+			"importpath": "gopkg.in/olivere/elastic.v3",
+			"repository": "https://gopkg.in/olivere/elastic.v3",
+			"revision": "c10e0836b7df4aa7ca1541aafc5c583e1c03d4c3",
+			"branch": "master"
+		}
+	]
+}

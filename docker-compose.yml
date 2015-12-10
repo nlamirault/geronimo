@@ -1,0 +1,21 @@
+#
+# Services
+#
+
+elasticsearch:
+  image: portefaix/elasticsearch:2.1.0.1
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+  volumes:
+    - /opt/geronimo/elasticsearch/data:/usr/share/elasticsearch/data
+  log_driver: "syslog"
+
+kibana:
+  image: portefaix/kibana:4.3.0
+  ports:
+    - "9393:5601"
+  links:
+    - elasticsearch
+  log_driver: "syslog"
+
