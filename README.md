@@ -24,6 +24,23 @@ You can download the binaries :
 
 ## Usage
 
+* Launch Elasticsearch and Kibana using [Docker composer][] :
+
+        $ docker-compose up
+
+* Check Elasticsearch status on : `http://localhost:9200`
+
+* Launch Geronimo synchronization:
+
+        $ geronimo
+
+* Setup your Kibana index on `http://localhost:9393`.
+  Index is your Github username (Like : `nlamirault*`)
+
+* Load the Geronimo dashboard into Elasticsearch :
+
+        $ curl -XPOST --data-binary @Geronimo.json http://localhost:9200/.kibana/dashboard/Geronimo
+
 
 ## Development
 
