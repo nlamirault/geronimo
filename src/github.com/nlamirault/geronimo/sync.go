@@ -51,8 +51,8 @@ const (
 )
 
 var (
-	toFetch chan *github.Repository
-	toIndex chan *github.Repository
+	// toFetch chan *github.Repository
+	// toIndex chan *github.Repository
 	// wgFetch sync.WaitGroup
 	// wgIndex sync.WaitGroup
 	options syncOptions
@@ -101,8 +101,8 @@ func synchronize(conf *config.Configuration) {
 		From:          DefaultFrom,
 		PerPage:       DefaultPerPage,
 	}
-	toFetch = make(chan *github.Repository, options.NumFetchProcs)
-	toIndex = make(chan *github.Repository, options.NumIndexProcs)
+	// toFetch = make(chan *github.Repository, options.NumFetchProcs)
+	// toIndex = make(chan *github.Repository, options.NumIndexProcs)
 	execute(user, githubClient, esClient)
 }
 
@@ -145,8 +145,10 @@ func execute(user *github.User, ghClient *github.Client, esClient *elastic.Clien
 		log.Printf("[INFO] Repository: %s", *repo.Name)
 		// toFetch <- &repo
 		// toIndex <- &repo
-		fetchingRepository(ghClient, username, &repo)
+		// fetchingRepository(ghClient, username, &repo)
 		indexingRepository(esClient, username, &repo)
+		fetchingRepository(ghClient, username, &repo)
+		savingRepository(esClient, username, &repo)
 	}
 
 	log.Printf("[INFO] Done indexing repositories in ElasticSearch")
@@ -181,10 +183,10 @@ func indexingRepository(client *elastic.Client, username string, repo *github.Re
 			*repo.Name, err.Error())
 		return
 	}
-	saveRepository(client, username, repo)
+	//savingRepository(client, username, repo)
 }
 
-func saveRepository(client *elastic.Client, username string, repo *github.Repository) {
+func savingRepository(client *elastic.Client, username string, repo *github.Repository) {
 	lang := "None"
 	if repo.Language != nil {
 		lang = *repo.Language
