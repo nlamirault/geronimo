@@ -129,6 +129,29 @@ func retrieveUserRepositories(client *github.Client, user *github.User) ([]githu
 	return repos, nil
 }
 
+func retrieveUserIssues(client *github.Client, user *github.User, repo *github.Repository) ([]github.Issue, error) {
+	var issues []github.Issue
+	for page := options.From/options.PerPage + 1; page != 0; {
+		r, resp, err := client.Issues.ListByRepo(
+			*user.Login,
+			*repo.Name, &github.IssueListByRepoOptions{
+				ListOptions: github.ListOptions{
+					PerPage: options.PerPage,
+					Page:    page,
+				},
+			})
+		page = resp.NextPage
+		if err != nil {
+			log.Printf("[ERROR] Retrieve issues: %s", err.Error())
+			continue
+		}
+		issues = append(issues, r...)
+		time.Sleep(time.Duration(1) * time.Second)
+	}
+
+	return issues, nil
+}
+
 func execute(user *github.User, ghClient *github.Client, esClient *elastic.Client) error {
 	repos, err := retrieveUserRepositories(ghClient, user)
 	if err != nil {
@@ -146,9 +169,21 @@ func execute(user *github.User, ghClient *github.Client, esClient *elastic.Clien
 		// toFetch <- &repo
 		// toIndex <- &repo
 		// fetchingRepository(ghClient, username, &repo)
-		indexingRepository(esClient, username, &repo)
-		fetchingRepository(ghClient, username, &repo)
-		savingRepository(esClient, username, &repo)
+		err := indexingRepository(esClient, username, &repo)
+		if err != nil {
+			log.Printf("[WARN] Index repository: %v", err)
+			continue
+		}
+		err = savingRepository(esClient, username, &repo)
+		if err != nil {
+			log.Printf("[WARN] Index repository: %v", err)
+			continue
+		}
+		err = fetchingRepository(ghClient, user, &repo)
+		if err != nil {
+			log.Printf("[WARN] Index repository: %v", err)
+			continue
+		}
 	}
 
 	log.Printf("[INFO] Done indexing repositories in ElasticSearch")
@@ -168,25 +203,34 @@ func indexingUser(client *elastic.Client, user *github.User) error {
 	return err
 }
 
-func fetchingRepository(client *github.Client, username string, repo *github.Repository) {
+func fetchingRepository(client *github.Client, user *github.User, repo *github.Repository) error {
 	//repo := <-toFetch
-	log.Printf("[INFO] Fetch repository: %s", *repo.Name)
+	log.Printf("[INFO] Fetch repository issues: %s", *repo.Name)
+	issues, err := retrieveUserIssues(client, user, repo)
+	if err != nil {
+		return fmt.Errorf("Can't retrieve repository %s issues: %s",
+			*repo.Name, err)
+	}
+	log.Printf("[INFO] Issues: %d", len(issues))
+	return nil
 }
 
-func indexingRepository(client *elastic.Client, username string, repo *github.Repository) {
+func indexingRepository(client *elastic.Client, username string, repo *github.Repository) error {
 	//repo := <-toIndex
 	log.Printf("[INFO] Index repository: %s", *repo.Name)
 	err := storage.CreateIndex(
 		client, strings.ToLower(fmt.Sprintf("%s_%s", username, *repo.Name)))
 	if err != nil {
-		log.Printf("[ERROR] Can't create index for repository %s: %s",
+		// log.Printf("[ERROR] Can't create index for repository %s: %s",
+		// 	*repo.Name, err.Error())
+		return fmt.Errorf("Can't create index for repository %s: %s",
 			*repo.Name, err.Error())
-		return
 	}
 	//savingRepository(client, username, repo)
+	return nil
 }
 
-func savingRepository(client *elastic.Client, username string, repo *github.Repository) {
+func savingRepository(client *elastic.Client, username string, repo *github.Repository) error {
 	lang := "None"
 	if repo.Language != nil {
 		lang = *repo.Language
@@ -226,8 +270,9 @@ func savingRepository(client *elastic.Client, username string, repo *github.Repo
 	put, err := storage.Save(
 		client, username, "repository", fmt.Sprintf("%d", *repo.ID), data)
 	if err != nil {
-		log.Printf("[ERROR] %s", err.Error())
+		return fmt.Errorf("Can't save repository : %v", err.Error())
 	}
 	log.Printf("[INFO] Indexed repository %s to index %s, type %s\n",
 		put.Id, put.Index, put.Type)
+	return nil
 }
